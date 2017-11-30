@@ -1,0 +1,27 @@
+{
+	"name": "HockeyLightMobile",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"start": "node node_modules/react-native/local-cli/cli.js start",
+		"test": "jest"
+	},
+	"dependencies": {
+		"buffer": "^5.0.8",
+		"react": "16.0.0",
+		"react-native": "0.50.4",
+		"react-native-network-info": "^3.0.0",
+		"react-native-spinkit": "^1.1.1",
+		"react-native-ssdp": "^2.8.2",
+		"react-native-udp": "^2.3.0"
+	},
+	"devDependencies": {
+		"babel-jest": "21.2.0",
+		"babel-preset-react-native": "4.0.0",
+		"jest": "21.2.1",
+		"react-test-renderer": "16.0.0"
+	},
+	"jest": {
+		"preset": "react-native"
+	}
+}
