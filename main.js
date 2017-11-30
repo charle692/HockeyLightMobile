@@ -32,13 +32,11 @@ export default class Main extends Component {
       console.log(rinfo);
 
       if (headers['ST'] === 'my:hockey-light') {
-        this.setState({ loading: false });
-        console.log(rinfo['address']);
-        this.setState({ host: rinfo['address'] });
+        this.setState({ loading: false, host: rinfo['address'] });
+        client.stop();
       }
     });
 
-    console.log("Inside of findHockeyLight");
     client.search('my:hockey-light');
   }
 
