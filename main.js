@@ -24,15 +24,16 @@ export default class Main extends Component {
     this.findHockeyLight();
   }
 
-  findHockeyLight() {
+  onLoadingComplete = () => {
+    this.setState({ loading: false });
+  }
+
+  findHockeyLight = () => {
     let client = new Client();
 
     client.on('response', (headers, statusCode, rinfo) => {
-      console.log(headers);
-      console.log(rinfo);
-
       if (headers['ST'] === 'my:hockey-light') {
-        this.setState({ loading: false, host: rinfo['address'] });
+        this.setState({ host: rinfo['address'] });
         client.stop();
       }
     });
@@ -49,16 +50,21 @@ export default class Main extends Component {
           source={require('./images/hockey_light.png')}
           style={styles.hockeyLight}
         />
-        <Text style={styles.title}>
-          Hockey Light
-        </Text>
+        <Text style={styles.title}>Hockey Light</Text>
         <Spinner
           style={styles.spinner}
           isVisible={loading}
           size={50}
           type={'ThreeBounce'}
         />
-        {!loading && <Settings host={host} />}
+        {
+          host &&
+          <Settings
+            host={host}
+            loading={loading}
+            onLoadingComplete={this.onLoadingComplete}
+          />
+        }
       </View >
     );
   }
@@ -67,13 +73,13 @@ export default class Main extends Component {
 const styles = StyleSheet.create({
   hockeyLight: {
     height: 120,
-    width: 240
+    width: 240,
   },
   container: {
-    paddingTop: 50,
     flex: 1,
-    alignItems: 'center',
     backgroundColor: '#999',
+    alignItems: 'center',
+    padding: 30,
   },
   title: {
     fontSize: 30,

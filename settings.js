@@ -3,9 +3,10 @@ import {
   Platform,
   StyleSheet,
   Text,
-  View,
   TextInput,
-  TouchableHighlight
+  View,
+  TouchableHighlight,
+  Picker
 } from 'react-native';
 
 export default class Settings extends Component {
@@ -13,14 +14,58 @@ export default class Settings extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: true
+      teams: [],
+      delay: null
     }
-    console.log("The props are: " + JSON.stringify(props));
+  }
+
+  componentDidMount = () => {
+    this.getTeams()
+    this.getDelay()
+  }
+
+  getTeams = () => {
+    fetch(`http://${this.props.host}:8080/get/teams`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => {
+      return response.json();
+    }).then(teams => {
+      let teamName = null;
+
+      for (let i = 0; i < teams.length; i++) {
+        if (teams[i].Selected) {
+          teamName = teams[i].name;
+          break;
+        }
+      }
+
+      this.setState({ teams, teamName });
+      this.props.onLoadingComplete();
+    }).catch(err => {
+      console.log(err);
+    });
+  }
+
+  getDelay = () => {
+    fetch(`http://${this.props.host}:8080/get/delay`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => {
+      return response.json();
+    }).then(delayObject => {
+      this.setState({ delay: delayObject.value });
+      this.props.onLoadingComplete();
+    }).catch(err => {
+      console.log(err);
+    });
   }
 
   triggerHornAndLight = () => {
-    console.log("The props are: " + this.props.host);
-
     fetch(`http://${this.props.host}:8080/play_horn`, {
       method: 'GET',
       headers: {
@@ -29,15 +74,77 @@ export default class Settings extends Component {
     }).then(response => {
       console.log(response);
     }).catch(err => {
-      console.log(response);
+      console.log(err);
+    });
+  }
+
+  sendNewHockeyLightSettings = () => {
+    this.setState({ sendingNewSettings: true });
+    this.refs.delayInput.blur();
+
+    fetch(`http://${this.props.host}:8080/post/settings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        team: {
+          name: this.state.teamName
+        },
+        delay: {
+          value: this.state.delay
+        }
+      })
+    }).then(response => {
+      this.setState({ sendingNewSettings: false });
+    }).catch(err => {
+      this.setState({ sendingNewSettings: false });
     });
   }
 
   render() {
+    const { loading } = this.props;
+    const { teamName, teams, delay, sendingNewSettings } = this.state;
+
     return (
       <View style={styles.container}>
+        {
+          !loading &&
+          <View style={styles.hockeyLightSettingsContainer}>
+            <Picker
+              selectedValue={teamName}
+              onValueChange={teamName => this.setState({ teamName })}>
+              {
+                teams.map(team => {
+                  return (
+                    <Picker.Item key={team.name} label={team.name} value={team.name} />
+                  );
+                })
+              }
+            </Picker>
+
+            <TextInput
+              placeholder='Delay in seconds'
+              keyboardType='numeric'
+              value={delay}
+              onChangeText={delay => this.setState({ delay })}
+              ref={'delayInput'}
+            />
+
+            {
+              !sendingNewSettings ?
+                <TouchableHighlight
+                  onPress={this.sendNewHockeyLightSettings}>
+                  <Text style={styles.button}>Update</Text>
+                </TouchableHighlight>
+                :
+                <Text style={styles.button}>Updating...</Text>
+            }
+          </View>
+        }
+
         <TouchableHighlight onPress={this.triggerHornAndLight}>
-          <Text style={styles.triggerHornAndLight}>Trigger Horn and Light</Text>
+          <Text style={styles.button}>Trigger Horn and Light</Text>
         </TouchableHighlight>
       </View>
     );
@@ -46,15 +153,23 @@ export default class Settings extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10,
-    flex: 1,
-    alignItems: 'center',
+    alignSelf: 'stretch',
   },
-  triggerHornAndLight: {
+  hockeyLightSettingsContainer: {
+    marginTop: 10,
+  },
+  button: {
+    textAlign: 'center',
+    marginTop: 10,
     backgroundColor: '#4CAF50',
     padding: 10,
     borderRadius: 5,
     color: '#ffffff',
     fontSize: 17,
+  },
+  spinner: {
+    color: '#ffffff',
+    alignSelf: 'center',
+    marginTop: 20,
   }
 });
