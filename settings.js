@@ -111,6 +111,7 @@ export default class Settings extends Component {
         {
           !loading &&
           <View style={styles.hockeyLightSettingsContainer}>
+            <Text>Selected Team</Text>
             <Picker
               selectedValue={teamName}
               onValueChange={teamName => this.setState({ teamName })}>
@@ -123,6 +124,7 @@ export default class Settings extends Component {
               }
             </Picker>
 
+            <Text>Delay (sec)</Text>
             <TextInput
               placeholder='Delay in seconds'
               keyboardType='numeric'
