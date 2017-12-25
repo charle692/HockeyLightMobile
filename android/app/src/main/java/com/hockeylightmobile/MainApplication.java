@@ -3,6 +3,7 @@ package com.hockeylightmobile;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.devstepbcn.wifi.AndroidWifiPackage;
 import com.react.rnspinkit.RNSpinkitPackage;
 import com.tradle.react.UdpSocketsModule;
 import com.pusherman.networkinfo.RNNetworkInfoPackage;
@@ -26,6 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+          new AndroidWifiPackage(),
           new RNNetworkInfoPackage(),
           new RNSpinkitPackage(),
           new UdpSocketsModule()
