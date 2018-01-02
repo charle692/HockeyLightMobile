@@ -55,15 +55,13 @@ export default class Main extends Component {
 
       for (let i = 0; i < wifiArray.length; i++) {
         if (wifiArray[i].SSID === 'pi-wifi') {
-          this.setState({ securityType: this.securityType(wifiArray[i].capabilities) }, () => {
-            wifi.findAndConnect('pi-wifi', '', found => {
-              console.log(found);
+          wifi.findAndConnect('pi-wifi', '', found => {
+            console.log(found);
 
-              if (found) {
-                console.log("wifi is in range!");
-                this.waitForHockeyLightWifi();
-              }
-            });
+            if (found) {
+              console.log("wifi is in range!");
+              this.waitForHockeyLightWifi();
+            }
           });
 
           break;
@@ -76,23 +74,17 @@ export default class Main extends Component {
     );
   }
 
-  securityType = capabilities => {
-    if (capabilities.includes('WPA2-PSK')) {
-      return 'WPA2';
-    } else if (capabilities.includes('WPA-PSK')) {
-      return 'WPA';
-    }
-
-    return '';
-  }
-
   waitForHockeyLightWifi = () => {
     const interval = setInterval(() => {
       wifi.getSSID(ssid => {
-        console.log("Connected to: " + ssid);
 
         if (ssid === 'pi-wifi') {
-          this.setState({ connectedToAP: true });
+          this.setState({ connectedToAP: true }, () => {
+            if (this.state.interval) {
+              clearInterval(this.state.interval);
+              this.setState({ interval: null });
+            }
+          });
         }
       });
     }, 2000);
@@ -127,8 +119,11 @@ export default class Main extends Component {
         {
           connectedToAP &&
           <NetworkSettings
-            securityType={securityType}
-            onCredentialsSaved={() => this.setState({ connectedToAP: false })}
+            onCredentialsSaved={() => {
+              wifi.setEnabled(false);
+              this.setState({ connectedToAP: false });
+              wifi.setEnabled(true);
+            }}
           />
         }
       </View >
