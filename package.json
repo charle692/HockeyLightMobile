@@ -9,8 +9,8 @@
 	"dependencies": {
 		"buffer": "^5.0.8",
 		"react": "16.0.0",
-		"react-native": "0.50.4",
-		"react-native-android-wifi": "0.0.23",
+		"react-native": "0.53.3",
+		"react-native-android-wifi": "0.0.34",
 		"react-native-network-info": "^3.0.0",
 		"react-native-spinkit": "^1.1.1",
 		"react-native-ssdp": "^2.8.2",
